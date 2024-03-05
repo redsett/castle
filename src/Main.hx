@@ -558,12 +558,15 @@ class Main extends Model {
 		return switch( c.type ) {
 		case TInt:
 			switch (c.display) {
-				case Percent: '$v%';
+				case Percent:
+					'<span>$v%</span> <div style="display: inline-block; position: relative; width: 40px; height: 8px; background-color: rgba(80, 158, 227, 0.2); border-radius: 3px;"><div style="position: absolute; top: 0px; bottom: 0px; background-color: rgb(80, 158, 227); width: $v%; left: 0px; border-radius: 3px;"></div></div>';
 				default: '$v';
 			} 
 		case TFloat:
 			switch( c.display ) {
-				case Percent: '${(Math.round(v * 10000)/100)}%';
+				case Percent:
+					var percent = (Math.round(v * 10000)/100); 
+					'<span>${percent}%</span> <div style="display: inline-block; position: relative; width: 40px; height: 8px; background-color: rgba(80, 158, 227, 0.2); border-radius: 3px;"><div style="position: absolute; top: 0px; bottom: 0px; background-color: rgb(80, 158, 227); width: $percent%; left: 0px; border-radius: 3px;"></div></div>';
 				default: '$v';
 			}
 		case TId:
@@ -606,7 +609,7 @@ class Main extends Model {
 					default:
 						vals.push(valueHtml(c, Reflect.field(v, c.name), ps, v));
 					}
-				var v = vals.length == 1 ? vals[0] : vals.join(",");
+				var v = vals.length == 1 ? vals[0] : vals.join(", ");
 				if( size > 200 ) {
 					out.push("...");
 					break;
@@ -662,11 +665,9 @@ class Main extends Model {
 			var url = "file://" + path;
 			var ext = v.split(".").pop().toLowerCase();
 			var val = StringTools.htmlEscape(v);
-			var html = v == "" ? '<span class="error">#MISSING</span>' : '<span title="$val">$val</span>';
+			var html = v == "" ? '<span class="error">#MISSING</span>' : '<span title="$val" onmouseover="_.onFileOver(\'$url\')" onmouseleave="_.onFileLeave(\'$url\')" >$val</span>';
 			if( v != "" && !quickExists(path) )
 				html = '<span class="error">' + html + '</span>';
-			// else if( ext == "png" || ext == "jpg" || ext == "jpeg" || ext == "gif" )
-				// html = '<span class="preview">$html<div class="previewContent"><div class="label"></div><img src="$url" onload="$(this).parent().find(\'.label\').text(this.width+\'x\'+this.height)"/></div></span>';
 			if( v != "" )
 				html += ' <i class="fa fa-external-link openfile" aria-hidden="true" onclick="_.openFile(\'$path\')"></i>';
 			html;
@@ -686,6 +687,16 @@ class Main extends Model {
 		}
 	}
 
+	function onFileOver(_url:String) {
+		J('.previewContent > img').replaceWith('<img src="$_url" onload="$(this).parent().find(\'.label\').text(this.naturalWidth+\'x\'+this.naturalHeight)"/>');
+		J('.imagePreview').show();
+	}
+
+	function onFileLeave(_url:String) {
+		J('.imagePreview').hide();
+		J('.previewContent > img').replaceWith('<img />');
+	}
+
 	function popupLine( sheet : Sheet, index : Int ) {
 		var n = new Menu();
 		var nup = new MenuItem( { label : "Move Up" } );
@@ -696,8 +707,16 @@ class Main extends Model {
 		var nref = new MenuItem( { label : "Show References" } );
 		for( m in [nup, ndown, nins, ndel, nsep, nref] )
 			n.append(m);
-		// var sepIndex = Lambda.indexOf(sheet.separators, index);
-		// nsep.checked = sepIndex >= 0;
+
+		var sepIndex = -1;
+		for (i in 0...sheet.separators.length) {
+			var s = sheet.separators[i];
+			if (s.index == index) {
+				sepIndex = i;
+				break;
+			}
+		}
+		nsep.checked = sepIndex >= 0;
 		nins.click = function() {
 			newLine(sheet, index);
 		};
@@ -712,24 +731,14 @@ class Main extends Model {
 			refresh();
 			save();
 		};
-		// nsep.click = function() {
-		// 	if( sepIndex >= 0 ) {
-		// 		sheet.separators.splice(sepIndex, 1);
-		// 		if( sheet.props.separatorTitles != null ) sheet.props.separatorTitles.splice(sepIndex, 1);
-		// 	} else {
-		// 		sepIndex = sheet.separators.length;
-		// 		for( i in 0...sheet.separators.length )
-		// 			if( sheet.separators[i] > index ) {
-		// 				sepIndex = i;
-		// 				break;
-		// 			}
-		// 		sheet.separators.insert(sepIndex, index);
-		// 		if( sheet.props.separatorTitles != null && sheet.props.separatorTitles.length > sepIndex )
-		// 			sheet.props.separatorTitles.insert(sepIndex, null);
-		// 	}
-		// 	refresh();
-		// 	save();
-		// };
+		nsep.click = function() {
+			if (sepIndex >= 0) { // remove
+				sheet.separators.splice(sepIndex, 1);
+			} else 
+				sheet.separators.push({index: index, id:Std.string(sepIndex), title:"unnamed separator"});
+			refresh();
+			save();
+		};
 		nref.click = function() {
 			showReferences(sheet, index);
 		};
@@ -1915,38 +1924,34 @@ class Main extends Model {
 		content.append(cols);
 
 		var snext = 0;
+		var sepMap = new Map<Int, Separator>();
+		for (s in sheet.separators)
+			sepMap.set(s.index, s);
+
 		for( i in 0...lines.length ) {
-			// while( sheet.separators[snext] == i ) {
-			// 	var sep = J("<tr>").addClass("separator").append('<td colspan="${colCount+1}">').appendTo(content);
-			// 	var content = sep.find("td");
-			// 	var title = if( sheet.props.separatorTitles != null ) sheet.props.separatorTitles[snext] else null;
-			// 	if( title != null ) content.text(title);
-			// 	var pos = snext;
-			// 	sep.dblclick(function(e) {
-			// 		content.empty();
-			// 		J("<input>").appendTo(content).focus().val(title == null ? "" : title).blur(function(_) {
-			// 			title = JTHIS.val();
-			// 			JTHIS.remove();
-			// 			content.text(title);
-			// 			var titles = sheet.props.separatorTitles;
-			// 			if( titles == null ) titles = [];
-			// 			while( titles.length < pos )
-			// 				titles.push(null);
-			// 			titles[pos] = title == "" ? null : title;
-			// 			while( titles[titles.length - 1] == null && titles.length > 0 )
-			// 				titles.pop();
-			// 			if( titles.length == 0 ) titles = null;
-			// 			sheet.props.separatorTitles = titles;
-			// 			save();
-			// 		}).keypress(function(e) {
-			// 			e.stopPropagation();
-			// 		}).keydown(function(e) {
-			// 			if( e.keyCode == 13 ) { JTHIS.blur(); e.preventDefault(); } else if( e.keyCode == 27 ) content.text(title);
-			// 			e.stopPropagation();
-			// 		});
-			// 	});
-			// 	snext++;
-			// }
+			var curSep = sepMap.get(i);
+			if (curSep != null) {
+				var sep = J("<tr>").addClass("separator").append('<td colspan="${colCount+1}">').appendTo(content);
+				var content = sep.find("td");
+				var title = curSep.title;
+				if( title != null ) content.text(title);
+				var pos = snext;
+				sep.dblclick(function(e) {
+					content.empty();
+					J("<input>").appendTo(content).focus().val(title == null ? "" : title).blur(function(_) {
+						title = JTHIS.val();
+						JTHIS.remove();
+						content.text(title);
+						curSep.title = title;
+						save();
+					}).keypress(function(e) {
+						e.stopPropagation();
+					}).keydown(function(e) {
+						if( e.keyCode == 13 ) { JTHIS.blur(); e.preventDefault(); } else if( e.keyCode == 27 ) content.text(title);
+						e.stopPropagation();
+					});
+				});
+			}
 			content.append(lines[i]);
 		}
 

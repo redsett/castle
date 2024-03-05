@@ -449,20 +449,31 @@ div#menu ul.sheets li.active {
 .castle span.error, .dialog-floating span.error {
 	color : #A00;
 }
-.castle .preview .previewContent, .dialog-floating .preview .previewContent {
-	display : none;
-	position : absolute;
+.imagePreview {
+	pointer-events : none;
+	border : 1px solid #aaa;
+	background-color : #000000;
+	background-color : rgba(0, 0, 0, 0.7);
+	position : fixed;
+	right : 30px;
+	bottom : 60px;
+}
+.imagePreview .previewContent {
 	background-color : #EEE;
 	border : 1px solid black;
 	padding : 5px;
 }
-.castle .preview .previewContent .label, .dialog-floating .preview .previewContent .label {
+.imagePreview .previewContent .label {
 	text-align : center;
 	margin-bottom : 5px;
 	background-color : white;
 	font-family : monospace;
 }
-.castle .preview:hover .previewContent, .dialog-floating .preview:hover .previewContent {
+.imagePreview .previewContent > img {
+	max-height : 33vh;
+	max-width : 33vh;
+}
+.imagePreview:hover .previewContent {
 	display : block;
 }
 #content .level {

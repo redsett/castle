@@ -533,30 +533,41 @@ div#menu {
 	span.error {
 		color : #A00;
 	}
-
-	.preview {
-		.previewContent {
-			.label {
-				text-align : center;
-				margin-bottom : 5px;
-				background-color : white;
-				font-family : monospace;
-			}
-			display : none;
-			position : absolute;
-			background-color : #EEE;
-			border : 1px solid black;
-			padding : 5px;
-		}
-	}
-	.preview:hover {
-		.previewContent {
-			display : block;
-		}
-	}
-
 }
 
+.imagePreview {
+	pointer-events: none;
+	border : 1px solid #aaa;
+	background-color : rgba(0,0,0,0.7);
+	position : fixed;
+	right : 30px;
+	bottom : 60px;
+
+	.previewContent {
+		.label {
+			text-align : center;
+			margin-bottom : 5px;
+			background-color : white;
+			font-family : monospace;
+		}
+		//display : none;
+		//position : absolute;
+		background-color : #EEE;
+		border : 1px solid black;
+		padding : 5px;
+
+		> img {
+			max-height: 33vh;
+			max-width: 33vh;
+		}
+	}
+}
+
+.imagePreview:hover {
+	.previewContent {
+		display : block;
+	}
+}
 
 #content .level {
 
