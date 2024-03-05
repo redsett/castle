@@ -410,7 +410,7 @@ class Main extends Model {
 	}
 
 	function getLine( sheet : Sheet, index : Int ) {
-		return J("table[sheet='"+sheet.getPath()+"'] > tbody > tr").not(".head,.separator,.list").eq(index);
+		return J("table[sheet='"+sheet.getPath()+"'] > tr").not(".head,.separator,.list").eq(index);
 	}
 
 	function showReferences( sheet : Sheet, index : Int ) {
@@ -556,12 +556,15 @@ class Main extends Model {
 			return '<span class="error">#NULL</span>';
 		}
 		return switch( c.type ) {
-		case TInt, TFloat:
+		case TInt:
+			switch (c.display) {
+				case Percent: '$v%';
+				default: '$v';
+			} 
+		case TFloat:
 			switch( c.display ) {
-			case Percent:
-				(Math.round(v * 10000)/100) + "%";
-			default:
-				v + "";
+				case Percent: '${(Math.round(v * 10000)/100)}%';
+				default: '$v';
 			}
 		case TId:
 			v == "" ? '<span class="error">#MISSING</span>' : (base.getSheet(sheet.name).index.get(v).obj == obj ? v : '<span class="error">#DUP($v)</span>');
@@ -576,7 +579,7 @@ class Main extends Model {
 				i == null ? '<span class="error">#REF($v)</span>' : (i.ico == null ? "" : tileHtml(i.ico,true)+" ") + StringTools.htmlEscape(i.disp);
 			}
 		case TBool:
-			v?"Y":"N";
+			v ? '&#x2611;' : '&#9744;';
 		case TEnum(values):
 			values[v];
 		case TImage:
@@ -603,7 +606,7 @@ class Main extends Model {
 					default:
 						vals.push(valueHtml(c, Reflect.field(v, c.name), ps, v));
 					}
-				var v = vals.length == 1 ? vals[0] : ""+vals;
+				var v = vals.length == 1 ? vals[0] : vals.join(",");
 				if( size > 200 ) {
 					out.push("...");
 					break;
@@ -618,8 +621,8 @@ class Main extends Model {
 				out.push(v);
 			}
 			if( out.length == 0 )
-				return "";
-			return out.join(", ");
+				return '[]';
+			return '[${out.join(", ")}]';
 		case TProperties:
 			var ps = sheet.getSub(c);
 			var out = [];
@@ -662,8 +665,8 @@ class Main extends Model {
 			var html = v == "" ? '<span class="error">#MISSING</span>' : '<span title="$val">$val</span>';
 			if( v != "" && !quickExists(path) )
 				html = '<span class="error">' + html + '</span>';
-			else if( ext == "png" || ext == "jpg" || ext == "jpeg" || ext == "gif" )
-				html = '<span class="preview">$html<div class="previewContent"><div class="label"></div><img src="$url" onload="$(this).parent().find(\'.label\').text(this.width+\'x\'+this.height)"/></div></span>';
+			// else if( ext == "png" || ext == "jpg" || ext == "jpeg" || ext == "gif" )
+				// html = '<span class="preview">$html<div class="previewContent"><div class="label"></div><img src="$url" onload="$(this).parent().find(\'.label\').text(this.width+\'x\'+this.height)"/></div></span>';
 			if( v != "" )
 				html += ' <input type="submit" value="open" onclick="_.openFile(\'$path\')"/>';
 			html;
@@ -693,8 +696,8 @@ class Main extends Model {
 		var nref = new MenuItem( { label : "Show References" } );
 		for( m in [nup, ndown, nins, ndel, nsep, nref] )
 			n.append(m);
-		var sepIndex = Lambda.indexOf(sheet.separators, index);
-		nsep.checked = sepIndex >= 0;
+		// var sepIndex = Lambda.indexOf(sheet.separators, index);
+		// nsep.checked = sepIndex >= 0;
 		nins.click = function() {
 			newLine(sheet, index);
 		};
@@ -709,24 +712,24 @@ class Main extends Model {
 			refresh();
 			save();
 		};
-		nsep.click = function() {
-			if( sepIndex >= 0 ) {
-				sheet.separators.splice(sepIndex, 1);
-				if( sheet.props.separatorTitles != null ) sheet.props.separatorTitles.splice(sepIndex, 1);
-			} else {
-				sepIndex = sheet.separators.length;
-				for( i in 0...sheet.separators.length )
-					if( sheet.separators[i] > index ) {
-						sepIndex = i;
-						break;
-					}
-				sheet.separators.insert(sepIndex, index);
-				if( sheet.props.separatorTitles != null && sheet.props.separatorTitles.length > sepIndex )
-					sheet.props.separatorTitles.insert(sepIndex, null);
-			}
-			refresh();
-			save();
-		};
+		// nsep.click = function() {
+		// 	if( sepIndex >= 0 ) {
+		// 		sheet.separators.splice(sepIndex, 1);
+		// 		if( sheet.props.separatorTitles != null ) sheet.props.separatorTitles.splice(sepIndex, 1);
+		// 	} else {
+		// 		sepIndex = sheet.separators.length;
+		// 		for( i in 0...sheet.separators.length )
+		// 			if( sheet.separators[i] > index ) {
+		// 				sepIndex = i;
+		// 				break;
+		// 			}
+		// 		sheet.separators.insert(sepIndex, index);
+		// 		if( sheet.props.separatorTitles != null && sheet.props.separatorTitles.length > sepIndex )
+		// 			sheet.props.separatorTitles.insert(sepIndex, null);
+		// 	}
+		// 	refresh();
+		// 	save();
+		// };
 		nref.click = function() {
 			showReferences(sheet, index);
 		};
@@ -1913,37 +1916,37 @@ class Main extends Model {
 
 		var snext = 0;
 		for( i in 0...lines.length ) {
-			while( sheet.separators[snext] == i ) {
-				var sep = J("<tr>").addClass("separator").append('<td colspan="${colCount+1}">').appendTo(content);
-				var content = sep.find("td");
-				var title = if( sheet.props.separatorTitles != null ) sheet.props.separatorTitles[snext] else null;
-				if( title != null ) content.text(title);
-				var pos = snext;
-				sep.dblclick(function(e) {
-					content.empty();
-					J("<input>").appendTo(content).focus().val(title == null ? "" : title).blur(function(_) {
-						title = JTHIS.val();
-						JTHIS.remove();
-						content.text(title);
-						var titles = sheet.props.separatorTitles;
-						if( titles == null ) titles = [];
-						while( titles.length < pos )
-							titles.push(null);
-						titles[pos] = title == "" ? null : title;
-						while( titles[titles.length - 1] == null && titles.length > 0 )
-							titles.pop();
-						if( titles.length == 0 ) titles = null;
-						sheet.props.separatorTitles = titles;
-						save();
-					}).keypress(function(e) {
-						e.stopPropagation();
-					}).keydown(function(e) {
-						if( e.keyCode == 13 ) { JTHIS.blur(); e.preventDefault(); } else if( e.keyCode == 27 ) content.text(title);
-						e.stopPropagation();
-					});
-				});
-				snext++;
-			}
+			// while( sheet.separators[snext] == i ) {
+			// 	var sep = J("<tr>").addClass("separator").append('<td colspan="${colCount+1}">').appendTo(content);
+			// 	var content = sep.find("td");
+			// 	var title = if( sheet.props.separatorTitles != null ) sheet.props.separatorTitles[snext] else null;
+			// 	if( title != null ) content.text(title);
+			// 	var pos = snext;
+			// 	sep.dblclick(function(e) {
+			// 		content.empty();
+			// 		J("<input>").appendTo(content).focus().val(title == null ? "" : title).blur(function(_) {
+			// 			title = JTHIS.val();
+			// 			JTHIS.remove();
+			// 			content.text(title);
+			// 			var titles = sheet.props.separatorTitles;
+			// 			if( titles == null ) titles = [];
+			// 			while( titles.length < pos )
+			// 				titles.push(null);
+			// 			titles[pos] = title == "" ? null : title;
+			// 			while( titles[titles.length - 1] == null && titles.length > 0 )
+			// 				titles.pop();
+			// 			if( titles.length == 0 ) titles = null;
+			// 			sheet.props.separatorTitles = titles;
+			// 			save();
+			// 		}).keypress(function(e) {
+			// 			e.stopPropagation();
+			// 		}).keydown(function(e) {
+			// 			if( e.keyCode == 13 ) { JTHIS.blur(); e.preventDefault(); } else if( e.keyCode == 27 ) content.text(title);
+			// 			e.stopPropagation();
+			// 		});
+			// 	});
+			// 	snext++;
+			// }
 			content.append(lines[i]);
 		}
 
