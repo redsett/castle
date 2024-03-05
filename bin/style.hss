@@ -28,6 +28,12 @@ a {
 	text-decoration : none;
 }
 
+.openfile {
+	cursor : pointer;
+	font-size: 110% !important;
+	font-weight: bold !important;
+}
+
 .select2 {
 	height : 22px !important;
 	.select2-selection--single {

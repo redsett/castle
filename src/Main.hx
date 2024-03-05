@@ -668,7 +668,7 @@ class Main extends Model {
 			// else if( ext == "png" || ext == "jpg" || ext == "jpeg" || ext == "gif" )
 				// html = '<span class="preview">$html<div class="previewContent"><div class="label"></div><img src="$url" onload="$(this).parent().find(\'.label\').text(this.width+\'x\'+this.height)"/></div></span>';
 			if( v != "" )
-				html += ' <input type="submit" value="open" onclick="_.openFile(\'$path\')"/>';
+				html += ' <i class="fa fa-external-link openfile" aria-hidden="true" onclick="_.openFile(\'$path\')"></i>';
 			html;
 		case TTilePos:
 			return tileHtml(v);
