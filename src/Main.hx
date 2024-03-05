@@ -167,6 +167,15 @@ class Main extends Model {
 		if( cursor.x == -1 && ctrl ) {
 			if( dy != 0 )
 				moveLine(cursor.s, cursor.y, dy);
+			// if( dy != 0 ) {
+			// 	var s = getSelection();
+			// 	if (dy < 0)
+			// 		for( y in s.y1...s.y2+1 )
+			// 			moveLine(cursor.s, y, dy);
+			// 	else
+			// 		for( y in -s.y2...-s.y1+1 )
+			// 			moveLine(cursor.s, -y, dy);
+			// }
 			updateCursor();
 			return;
 		}
@@ -486,10 +495,10 @@ class Main extends Model {
 	}
 
 
-	function moveLine( sheet : Sheet, index : Int, delta : Int ) {
+	function moveLine( sheet : Sheet, _index : Int, delta : Int ) {
 		// remove opened list
-		getLine(sheet, index).next("tr.list").change();
-		var index = sheet.moveLine(index, delta);
+		getLine(sheet, _index).next("tr.list").change();
+		var index = sheet.moveLine(_index, delta);
 		if( index != null ) {
 			setCursor(sheet, -1, index, false);
 			refresh();
@@ -582,7 +591,8 @@ class Main extends Model {
 				i == null ? '<span class="error">#REF($v)</span>' : (i.ico == null ? "" : tileHtml(i.ico,true)+" ") + StringTools.htmlEscape(i.disp);
 			}
 		case TBool:
-			v ? '&#x2611;' : '&#9744;';
+			// v ? '&#x2611;' : '&#9744;';
+			v ? '<i class="fa fa-check-square-o" aria-hidden="true"></i>' : '<i class="fa fa-square-o" aria-hidden="true"></i>';
 		case TEnum(values):
 			values[v];
 		case TImage:
@@ -1337,6 +1347,7 @@ class Main extends Model {
 			cursor.x = max - 1;
 			cursor.select = null;
 		}
+
 		var l = getLine(cursor.s, cursor.y);
 		if( cursor.x < 0 ) {
 			l.addClass("selected");
@@ -2546,6 +2557,26 @@ class Main extends Model {
 
 		};
 
+		// create an edit menu
+		modifier = "ctrl+shift";
+		if(Sys.systemName().indexOf("Mac") != -1)
+			modifier = "cmd+shift";
+
+		var medit = new MenuItem({ label : "Database" });
+		var medits = new Menu();
+		var mnewsheet = new MenuItem( { label : "New Sheet", key : "N", modifiers : modifier } );
+		var mnewcolumn = new MenuItem( { label : "Add Column", key : "C", modifiers : modifier } );
+		var mnewline = new MenuItem( { label : "Add Line", key : "L", modifiers : modifier } );
+		var medittypes = new MenuItem( { label : "Edit Types", key : "E", modifiers : modifier } );
+		mnewcolumn.click = ()->newColumn();
+		mnewsheet.click = ()->newSheet();
+		medittypes.click = ()->editTypes();
+		mnewline.click = ()->insertLine();
+
+		for(m in [mnewsheet, mnewcolumn, mnewline, medittypes])
+			medits.append(m);
+		medit.submenu = medits;
+
 		if(Sys.systemName().indexOf("Mac") != -1) {
 			menu.createMacBuiltin("CastleDB", {hideEdit: false, hideWindow: true}); // needed so copy&paste inside INPUTs work
 			menu.removeAt(0); // remove default menu
@@ -2553,9 +2584,11 @@ class Main extends Model {
 			menu.removeAt(0); // remove default edit menu
 			menu.insert(mfile, 0); // put it before the default Edit menu
 			mfiles.insert(mdebug, 7); // needs to go under File or it won't show
+			mfiles.insert(medit, 7); // needs to go under File or it won't show
 		}
 		else {
 			menu.append(mfile);
+			menu.append(medit);
 			menu.append(mdebug);
 		}
 

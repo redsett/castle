@@ -285,13 +285,13 @@ div#menu ul.sheets li.active {
 	cursor : nw-resize;
 }
 .castle tr.separator, .dialog-floating tr.separator {
-	background-color : #BFC8E3;
+	background-color : #ffeeb0;
 	height : 10px;
 }
 .castle tr.separator td, .dialog-floating tr.separator td {
-	border-top : 1px solid #99A6D2;
+	border-top : 1px solid #d29d99;
 	padding-top : 6px;
-	color : #2B3762;
+	color : #370617;
 	font-weight : bold;
 	padding-left : 20px;
 }
@@ -366,14 +366,12 @@ div#menu ul.sheets li.active {
 	text-align : center;
 }
 .castle td.t_bool.true, .dialog-floating td.t_bool.true {
-	color : #76AA09;
 	font-weight : bold;
-	font-size : 125%;
+	font-size : 110%;
 }
 .castle td.t_bool.false, .dialog-floating td.t_bool.false {
-	color : #888;
 	font-weight : bold;
-	font-size : 125%;
+	font-size : 110%;
 }
 .castle td.t_int, .castle td.t_float, .dialog-floating td.t_int, .dialog-floating td.t_float {
 	text-align : center;
@@ -451,6 +449,7 @@ div#menu ul.sheets li.active {
 }
 .imagePreview {
 	pointer-events : none;
+	display : none;
 	border : 1px solid #aaa;
 	background-color : #000000;
 	background-color : rgba(0, 0, 0, 0.7);
