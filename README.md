@@ -8,7 +8,8 @@
 
 Since it's a hidden gem and still super useful I decided to fork it here & update everything for 2024 together with some small UI fixes. 
 
-![image](https://github.com/dazKind/castle/assets/5015415/09a0c010-684e-4377-aa29-360445623a9c)
+![image](https://github.com/dazKind/castle/assets/5015415/fb52ec84-f020-4a64-bd00-5d6e78d5ecfb)
+
 
 
 ---
