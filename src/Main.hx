@@ -921,16 +921,16 @@ class Main extends Model {
 		
 		var ncsv = new MenuItem( { label : "CSV..." } );
 		var csv = new Menu();
-		var importSheetCSV = new MenuItem( { label : "Import...", type : MenuItemType.checkbox } );
-		var exportSheetCSV = new MenuItem( { label : "Export...", type : MenuItemType.checkbox } );
+		var importSheetCSV = new MenuItem( { label : "Import Sheet Data...", type : MenuItemType.checkbox } );
+		var exportSheetCSV = new MenuItem( { label : "Export Sheet Data...", type : MenuItemType.checkbox } );
 		csv.append(importSheetCSV);
 		csv.append(exportSheetCSV);
 		ncsv.submenu = csv;
 
 		var njson = new MenuItem( { label : "JSON..." } );
 		var json = new Menu();
-		var importSheetJSON = new MenuItem( { label : "Import...", type : MenuItemType.checkbox } );
-		var exportSheetJSON = new MenuItem( { label : "Export...", type : MenuItemType.checkbox } );
+		var importSheetJSON = new MenuItem( { label : "Import Sheet Data...", type : MenuItemType.checkbox } );
+		var exportSheetJSON = new MenuItem( { label : "Export Sheet Data...", type : MenuItemType.checkbox } );
 		json.append(importSheetJSON);
 		json.append(exportSheetJSON);
 		njson.submenu = json;
@@ -2293,6 +2293,26 @@ class Main extends Model {
 		save();
 	}
 
+	// TODO: we might add this later
+	// function createSheetFromFile(_) {
+	// 	importSheetJSON.click = function() {
+	// 		var i = J("<input>").attr("type", "file").css("display","none").change(function(e) {
+	// 			var j = JTHIS;
+
+	// 			switch (haxe.io.Path.extension(j.val())) {
+	// 				case 'csv', 'CSV':
+	// 				case 'json', 'JSON':
+	// 			}
+
+	// 			this.importSheetJSON(s, );
+	// 			initContent();
+	// 			j.remove();
+	// 		});
+	// 		i.appendTo(J("body"));
+	// 		i.click();
+	// 	};
+	// }
+
 	function initLevel( s : Sheet ) {
 		var cols = [ { n : "id", t : TId }, { n : "width", t : TInt }, { n : "height", t : TInt }, { n : "props", t : TDynamic }, { n : "tileProps", t : TList }, { n : "layers", t : TList } ];
 		for( c in cols ) {
@@ -2703,6 +2723,8 @@ class Main extends Model {
 
 		lastSave = getFileTime();
 		super.load(noError);
+
+		window.title = "CastleDB Editor v1.6.2 - " + prefs.curFile;
 
 		initContent();
 		prefs.recent.remove(prefs.curFile);

@@ -14,8 +14,9 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 import cdb.Data;
-
 import thx.csv.*;
+
+using StringTools;
 
 typedef Prefs = {
 	windowPos : { x : Int, y : Int, w : Int, h : Int, max : Bool },
@@ -193,22 +194,51 @@ class Model {
 
 	@:access(cdb.Sheet)
 	function exportSheetJSON(_s:cdb.Sheet, _filePath:String) {
-		sys.io.File.saveContent(_filePath, haxe.Json.stringify(_s.sheet, null, "    "));
+
+		// export the main sheet and potential subsheets...
+		var name = _s.name;
+		var toExport = [_s.sheet];
+		for (s in _s.base.sheets)
+			if (s.name.startsWith('${_s.name}@')) // gather all subsheets
+				toExport.push(s.sheet);
+
+		sys.io.File.saveContent(_filePath, haxe.Json.stringify(toExport, null, "    "));
 	}
 
 	@:access(cdb.Sheet)
+	@:access(cdb.Database)
 	function importSheetJSON(_s:cdb.Sheet, _filePath:String) {
-		trace(_s);
 
 		// TODO: do import validation!!!
-		var s = haxe.Json.parse(sys.io.File.getContent(_filePath));
-		for( c in cast(s.columns, Array<Dynamic>) ) {
-			c.type = cdb.Parser.getType(c.typeStr);
-			c.typeStr = null;
+		var shs:Array<Dynamic> = cast haxe.Json.parse(sys.io.File.getContent(_filePath));
+		for (s in shs) {
+			// rename the imported sheet to match the current selected sheet.
+			s.name = s.name.replace(s.name.split('@')[0], _s.name);
+
+			// now fix the types
+			for( c in cast(s.columns, Array<Dynamic>) ) {
+				c.type = cdb.Parser.getType(c.typeStr);
+				c.typeStr = null;
+			}
+
+			// gather existing sheets
+			var index:Null<Int> = null;
+			var existing = null;
+			for (i in 0..._s.base.sheets.length) {
+				var e = _s.base.sheets[i];
+				if (e.name==s.name) {
+					existing = e;
+					index = i;
+					break;
+				}
+			}
+
+			// now replace / add
+			if (existing != null)
+				_s.base.deleteSheet(existing);
+			_s.base.addSheet(s, index);
 		}
-	
-		_s.sheet = s;
-		_s.sync();
+
 		_s.base.updateSheets();
 		_s.base.sync();
 	}
