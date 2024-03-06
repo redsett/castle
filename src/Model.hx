@@ -241,6 +241,7 @@ class Model {
 
 		_s.base.updateSheets();
 		_s.base.sync();
+		this.save();
 	}
 
 	function exportSheetCSV(_s:cdb.Sheet, _filePath:String) {
@@ -293,6 +294,7 @@ class Model {
 		_s.sync();
 		_s.base.updateSheets();
 		_s.base.sync();
+		this.save();
 	}
 
 }

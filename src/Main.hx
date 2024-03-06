@@ -2725,6 +2725,7 @@ class Main extends Model {
 		super.load(noError);
 
 		window.title = "CastleDB Editor v1.6.2 - " + prefs.curFile;
+		J('.imagePreview').hide();
 
 		initContent();
 		prefs.recent.remove(prefs.curFile);
