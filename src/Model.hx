@@ -261,6 +261,8 @@ class Model {
 
 		_s.sheet.lines = lines;
 		_s.sync();
+		_s.base.updateSheets();
+		_s.base.sync();
 	}
 
 }
