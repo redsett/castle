@@ -1,3 +1,23 @@
+
+![image](https://github.com/dazKind/castle/assets/5015415/fd8c3afa-ead5-4fe3-9956-45efb727946a) 
+# CastleDB Editor
+
+> **Important Note:** This is a fork of https://github.com/ncannasse/castle that updates and resurrects the old CastleDB Editor.
+
+[http://castledb.org](http://castledb.org)'s editor is so outdated and no longer maintained, it's a crime.
+
+Since it's a hidden gem and still super useful I decided to fork it here & update everything for 2024 together with some small UI fixes. 
+
+![image](https://github.com/dazKind/castle/assets/5015415/09a0c010-684e-4377-aa29-360445623a9c)
+
+
+---
+
+
+
+
+# The original Documentation: 
+
 CastleDB
 ========
 <a href="http://castledb.org"><img src="http://castledb.org/img/icon_hd.png" align=right /></a>
