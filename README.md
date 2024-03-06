@@ -2,7 +2,7 @@
 ![image](https://github.com/dazKind/castle/assets/5015415/fd8c3afa-ead5-4fe3-9956-45efb727946a) 
 # CastleDB Editor
 
-> **Important Note:** This is a fork of https://github.com/ncannasse/castle that updates and resurrects the old CastleDB Editor.
+> **Important Note:** This is a fork of https://github.com/ncannasse/castle that resurrects & updates the old CastleDB Editor.
 
 [http://castledb.org](http://castledb.org)'s editor is so outdated and no longer maintained, it's a crime.
 
