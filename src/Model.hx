@@ -15,6 +15,8 @@
  */
 import cdb.Data;
 
+import thx.csv.*;
+
 typedef Prefs = {
 	windowPos : { x : Int, y : Int, w : Int, h : Int, max : Bool },
 	curFile : String,
@@ -187,6 +189,78 @@ class Model {
 
 	function savePrefs() {
 		js.Browser.getLocalStorage().setItem("prefs", haxe.Serializer.run(prefs));
+	}
+
+	@:access(cdb.Sheet)
+	function exportSheetJSON(_s:cdb.Sheet, _filePath:String) {
+		sys.io.File.saveContent(_filePath, haxe.Json.stringify(_s.sheet, null, "    "));
+	}
+
+	@:access(cdb.Sheet)
+	function importSheetJSON(_s:cdb.Sheet, _filePath:String) {
+		trace(_s);
+
+		// TODO: do import validation!!!
+		var s = haxe.Json.parse(sys.io.File.getContent(_filePath));
+		for( c in cast(s.columns, Array<Dynamic>) ) {
+			c.type = cdb.Parser.getType(c.typeStr);
+			c.typeStr = null;
+		}
+	
+		_s.sheet = s;
+		_s.sync();
+		_s.base.updateSheets();
+		_s.base.sync();
+	}
+
+	function exportSheetCSV(_s:cdb.Sheet, _filePath:String) {
+		var lines = [[ for (c in _s.columns) c.name]];		
+
+		for (l in _s.getLines()) {
+			var ol = [];
+			for (c in _s.columns) {
+				switch (c.type) {
+					case TId, TString, TFile: 
+						ol.push(Reflect.field(l, c.name));
+					default:
+						ol.push(haxe.Json.stringify(Reflect.field(l, c.name)));
+				}
+			}
+			lines.push(ol);
+		}
+		sys.io.File.saveContent(_filePath, Csv.encode(lines));
+	}
+
+	@:access(cdb.Sheet)
+	function importSheetCSV(_s:cdb.Sheet, _filePath:String) {
+		var d = Csv.decode(sys.io.File.getContent(_filePath));
+		var header = d.shift(); // get rid off first line
+
+		var colMapSheet = new Map<String, Column>();
+		for (c in _s.columns)
+			colMapSheet.set(c.name, c);
+
+		var lines = [];
+		for (l in d) {
+			var line = {};
+			for (i in 0...l.length) {
+				var c = colMapSheet.get(header[i]);
+				if (c == null)
+					continue;
+
+				var val = l[i];
+				switch (c.type) {
+					case TId, TString, TFile: 
+						Reflect.setField(line, c.name, val);
+					default:
+						Reflect.setField(line, c.name, haxe.Json.parse(val));
+				}
+			}
+			lines.push(line);
+		}
+
+		_s.sheet.lines = lines;
+		_s.sync();
 	}
 
 }

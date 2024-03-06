@@ -5,6 +5,7 @@
 -lib hx3compat:git:https://github.com/HaxeFoundation/hx3compat
 -lib format:git:https://github.com/HaxeFoundation/format
 -lib hxbit:git:https://github.com/HeapsIO/hxbit
+-lib thx.csv
 -D lz4js
 -D analyzer-optimize
 -dce std

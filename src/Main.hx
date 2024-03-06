@@ -918,8 +918,26 @@ class Main extends Model {
 		var ndel = new MenuItem( { label : "Delete" } );
 		var nindex = new MenuItem( { label : "Add Index", type : MenuItemType.checkbox } );
 		var ngroup = new MenuItem( { label : "Add Group", type : MenuItemType.checkbox } );
-		for( m in [nins, nleft, nright, nren, ndel, nindex, ngroup] )
+		
+		var ncsv = new MenuItem( { label : "CSV..." } );
+		var csv = new Menu();
+		var importSheetCSV = new MenuItem( { label : "Import...", type : MenuItemType.checkbox } );
+		var exportSheetCSV = new MenuItem( { label : "Export...", type : MenuItemType.checkbox } );
+		csv.append(importSheetCSV);
+		csv.append(exportSheetCSV);
+		ncsv.submenu = csv;
+
+		var njson = new MenuItem( { label : "JSON..." } );
+		var json = new Menu();
+		var importSheetJSON = new MenuItem( { label : "Import...", type : MenuItemType.checkbox } );
+		var exportSheetJSON = new MenuItem( { label : "Export...", type : MenuItemType.checkbox } );
+		json.append(importSheetJSON);
+		json.append(exportSheetJSON);
+		njson.submenu = json;
+		
+		for( m in [nins, nleft, nright, nren, ndel, nindex, ngroup, njson, ncsv] )
 			n.append(m);
+		
 		nleft.click = function() {
 			var prev = -1;
 			for( i in 0...base.sheets.length ) {
@@ -1005,6 +1023,49 @@ class Main extends Model {
 		nren.click = function() {
 			li.dblclick();
 		};
+
+		importSheetJSON.click = function() {
+			var i = J("<input>").attr("type", "file").css("display","none").change(function(e) {
+				var j = JTHIS;
+				this.importSheetJSON(s, j.val());
+				initContent();
+				j.remove();
+			});
+			i.appendTo(J("body"));
+			i.click();
+		};
+		exportSheetJSON.click = function() {
+			var i = J("<input>").attr("type", "file").attr("nwsaveas",'${s.name}.json').css("display","none").change(function(e) {
+				var j = JTHIS;
+				this.exportSheetJSON(s, j.val());
+				initContent();
+				j.remove();
+			});
+			i.appendTo(J("body"));
+			i.click();
+		};
+		
+		importSheetCSV.click = function() {
+			var i = J("<input>").attr("type", "file").css("display","none").change(function(e) {
+				var j = JTHIS;
+				this.importSheetCSV(s, j.val());
+				initContent();
+				j.remove();
+			});
+			i.appendTo(J("body"));
+			i.click();
+		};
+		exportSheetCSV.click = function() {
+			var i = J("<input>").attr("type", "file").attr("nwsaveas",'${s.name}.csv').css("display","none").change(function(e) {
+				var j = JTHIS;
+				this.exportSheetCSV(s, j.val());
+				initContent();
+				j.remove();
+			});
+			i.appendTo(J("body"));
+			i.click();
+		};
+		
 		if( s.isLevel() || (s.hasColumn("width", [TInt]) && s.hasColumn("height", [TInt]) && s.hasColumn("props",[TDynamic])) ) {
 			var nlevel = new MenuItem( { label : "Level", type : MenuItemType.checkbox } );
 			nlevel.checked = s.isLevel();
