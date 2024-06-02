@@ -142,7 +142,7 @@ class Model {
 			base.load(sys.io.File.getContent(prefs.curFile));
 			if( prefs.curSheet > base.sheets.length )
 				prefs.curSheet = 0;
-			else while( base.sheets[prefs.curSheet].props.hide )
+			else while( prefs.curSheet > 0 && base.sheets[prefs.curSheet].props.hide )
 				prefs.curSheet--;
 		} catch( e : Dynamic ) {
 			if( !noError ) error(Std.string(e));
