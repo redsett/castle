@@ -558,6 +558,8 @@ div#menu {
 		padding : 5px;
 
 		> img {
+			min-height: 33vh;
+			min-width: 33vh;
 			max-height: 33vh;
 			max-width: 33vh;
 		}

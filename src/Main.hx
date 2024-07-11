@@ -568,14 +568,16 @@ class Main extends Model {
 		case TInt:
 			switch (c.display) {
 				case Percent:
-					'<span>$v%</span> <div style="display: inline-block; position: relative; width: 40px; height: 8px; background-color: rgba(80, 158, 227, 0.2); border-radius: 3px;"><div style="position: absolute; top: 0px; bottom: 0px; background-color: rgb(80, 158, 227); width: $v%; left: 0px; border-radius: 3px;"></div></div>';
+					var maxPercent = Math.min(v, 100);
+					'<span>$v%</span> <div style="display: inline-block; position: relative; width: 40px; height: 8px; background-color: rgba(80, 158, 227, 0.2); border-radius: 3px;"><div style="position: absolute; top: 0px; bottom: 0px; background-color: rgb(80, 158, 227); width: $maxPercent%; left: 0px; border-radius: 3px;"></div></div>';
 				default: '$v';
 			} 
 		case TFloat:
 			switch( c.display ) {
 				case Percent:
 					var percent = (Math.round(v * 10000)/100); 
-					'<span>${percent}%</span> <div style="display: inline-block; position: relative; width: 40px; height: 8px; background-color: rgba(80, 158, 227, 0.2); border-radius: 3px;"><div style="position: absolute; top: 0px; bottom: 0px; background-color: rgb(80, 158, 227); width: $percent%; left: 0px; border-radius: 3px;"></div></div>';
+					var maxPercent = Math.min(percent, 100.0);
+					'<span>${percent}%</span> <div style="display: inline-block; position: relative; width: 40px; height: 8px; background-color: rgba(80, 158, 227, 0.2); border-radius: 3px;"><div style="position: absolute; top: 0px; bottom: 0px; background-color: rgb(80, 158, 227); width: $maxPercent%; left: 0px; border-radius: 3px;"></div></div>';
 				default: '$v';
 			}
 		case TId:
@@ -672,13 +674,18 @@ class Main extends Model {
 			'<div class="color" style="background-color:#${StringTools.hex(v,6)}"></div>';
 		case TFile:
 			var path = getAbsPath(v);
-			var url = "file://" + path;
+			var url : String = "file://" + path;
 			var ext = v.split(".").pop().toLowerCase();
 			var val = StringTools.htmlEscape(v);
-			var html = v == "" ? '<span class="error">#MISSING</span>' : '<span title="$val" onmouseover="_.onFileOver(\'$url\')" onmouseleave="_.onFileLeave(\'$url\')" >$val</span>';
+			var is_valid_image :Bool= (StringTools.endsWith(url.toLowerCase(), ".png") || StringTools.endsWith(url.toLowerCase(), ".jpg") || StringTools.endsWith(url.toLowerCase(), ".jpeg")) && quickExists(path);
+			var html = v == "" ? '<span class="error">#MISSING</span>' : 
+				is_valid_image ? '<img src="$url" width="50" height="50"/>' :
+				//'<img src="$url" width="50" height="50" onmouseover="_.onFileOver(\'$url\')" onmouseleave="_.onFileLeave(\'$url\')"/>';
+				'<span title="$val">$val</span>';
+			
 			if( v != "" && !quickExists(path) )
 				html = '<span class="error">' + html + '</span>';
-			if( v != "" )
+			if( v != "" && !is_valid_image)
 				html += ' <i class="fa fa-external-link openfile" aria-hidden="true" onclick="_.openFile(\'$path\')"></i>';
 			html;
 		case TTilePos:

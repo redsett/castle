@@ -1,7 +1,7 @@
 body {
 	margin : 0;
 	padding : 0;
-	background-color : #CCC;
+	background-color : #535353;
 }
 ul, li {
 	margin : 0;
@@ -72,8 +72,8 @@ div.modal {
 }
 div.modal .content {
 	width : 300px;
-	background-color : white;
-	border : 1px solid #f48c06;
+	background-color : rgb(255, 255, 255);
+	border : 1px solid #000000;
 	border-radius : 5px;
 	margin : 50px auto;
 	padding : 10px 20px;
@@ -142,7 +142,7 @@ div.modal #col_options.t_custom .custom {
 	z-index : 100;
 	width : 16px;
 	height : 16px;
-	border : 1px solid white;
+	border : 1px solid rgb(255, 255, 255);
 	outline : 1px solid black;
 }
 .modal.tileSelect .tileCursor.current {
@@ -174,9 +174,9 @@ div.modal #col_options.t_custom .custom {
 div#menu {
 	position : fixed;
 	z-index : 9;
-	background-color : #faa307;
+	background-color : #2e5480;
 	bottom : 0px;
-	border-top : 1px solid #f48c06;
+	border-top : 2px solid #000000;
 	height : 25px;
 	width : 100%;
 	user-select : none;
@@ -202,24 +202,26 @@ div#menu ul.sheets {
 }
 div#menu ul.sheets li {
 	height : 20px;
-	background-color : #f48c06;
+	background-color : #3f0958;
 	padding : 2px 8px;
 	display : inline-block;
-	color : #03071e;
+	color : #ffffff;
 	cursor : pointer;
-	border : 1px solid #f48c06;
+	border : 1px solid #303030;
 	border-top : 0px;
 	border-bottom-right-radius : 5px;
 }
 div#menu ul.sheets li:hover {
-	background-color : #FF9A07;
+	background-color : #b007ff;
+	font-weight : bold;
 }
 div#menu ul.sheets li.active {
-	color : #3D0719;
-	background-color : #FFB308;
+	color : #ffffff;
+	font-weight : bold;
+	background-color : #8104bb;
 }
 #content.castle {
-	overflow : hidden;
+	overflow : auto;
 }
 .castle .tedit, .dialog-floating .tedit {
 	height : 100%;
@@ -231,8 +233,8 @@ div#menu ul.sheets li.active {
 }
 .castle table, .dialog-floating table {
 	width : 100%;
-	table-layout : fixed;
-	background-color : white;
+	/* table-layout : fixed; */
+	background-color : rgb(194, 194, 194);
 	border-collapse : collapse;
 	border-spacing : 0;
 }
@@ -258,7 +260,7 @@ div#menu ul.sheets li.active {
 	outline : 1px solid #555;
 }
 .castle tr.cursorLine, .dialog-floating tr.cursorLine {
-	background-color : #EFF1F8;
+	background-color : #b8cec0;
 }
 .castle td.t_image, .dialog-floating td.t_image {
 	cursor : pointer;
@@ -276,22 +278,22 @@ div#menu ul.sheets li.active {
 	width : 30px !important;
 	text-align : center;
 	cursor : pointer;
-	background-color : #EFF1F8;
+	background-color : #686565;
 }
 .castle tr.cursorLine td.start, .dialog-floating tr.cursorLine td.start {
-	background-color : #D6DBED;
+	background-color : #d6edd9;
 }
 .castle tr.head td.start, .dialog-floating tr.head td.start {
 	cursor : nw-resize;
 }
 .castle tr.separator, .dialog-floating tr.separator {
-	background-color : #ffeeb0;
+	background-color : #b0d2ff;
 	height : 10px;
 }
 .castle tr.separator td, .dialog-floating tr.separator td {
-	border-top : 1px solid #d29d99;
+	border-top : 1px solid #000000;
 	padding-top : 6px;
-	color : #370617;
+	color : #000000;
 	font-weight : bold;
 	padding-left : 20px;
 }
@@ -301,9 +303,9 @@ div#menu ul.sheets li.active {
 .castle tr.head, .dialog-floating tr.head {
 	font-weight : bold;
 	text-align : center;
-	border-bottom : 1px solid #888;
-	border-left : 1px solid #888;
-	background-color : #333;
+	border-bottom : 4px solid #888;
+	border-left : 4px solid #888;
+	background-color : #3a0941;
 	color : #EEE;
 	width : auto;
 	white-space : nowrap;
@@ -322,14 +324,14 @@ div#menu ul.sheets li.active {
 	height : 8px;
 }
 .castle tr.list tr, .dialog-floating tr.list tr {
-	background-color : #EEE;
+	background-color : #d2d9da;
 	border-color : #E0E0E0;
 }
 .castle tr.list input, .castle tr.list select, .dialog-floating tr.list input, .dialog-floating tr.list select {
-	background-color : #EEE;
+	background-color : #eeeeee;
 }
 .castle tr.list tr.selected, .castle tr.list td.selected, .dialog-floating tr.list tr.selected, .dialog-floating tr.list td.selected {
-	background-color : #DDD;
+	background-color : #dddddd;
 }
 .castle tr.list > td, .dialog-floating tr.list > td {
 	padding : 0;
@@ -348,7 +350,7 @@ div#menu ul.sheets li.active {
 	font-style : italic;
 }
 .castle tr.selected, .castle td.selected, .dialog-floating tr.selected, .dialog-floating td.selected {
-	background-color : #EEE;
+	background-color : #eeeeee;
 }
 .castle td, .dialog-floating td {
 	user-select : none;
@@ -383,7 +385,7 @@ div#menu ul.sheets li.active {
 	color : #888;
 }
 .castle td.t_list, .castle td.t_properties, .dialog-floating td.t_list, .dialog-floating td.t_properties {
-	white-space : nowrap;
+	/* white-space : nowrap; */
 	cursor : pointer;
 }
 .castle td.t_list img, .castle td.t_properties img, .dialog-floating td.t_list img, .dialog-floating td.t_properties img {
@@ -469,6 +471,8 @@ div#menu ul.sheets li.active {
 	font-family : monospace;
 }
 .imagePreview .previewContent > img {
+	min-height : 33vh;
+	min-width : 33vh;
 	max-height : 33vh;
 	max-width : 33vh;
 }
