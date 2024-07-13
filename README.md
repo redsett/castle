@@ -1,3 +1,5 @@
+Current version of Haxe as of submitting: 4.3.1
+
 
 ![image](https://github.com/dazKind/castle/assets/5015415/fd8c3afa-ead5-4fe3-9956-45efb727946a) 
 # CastleDB Editor

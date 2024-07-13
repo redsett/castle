@@ -471,10 +471,10 @@ div#menu ul.sheets li.active {
 	font-family : monospace;
 }
 .imagePreview .previewContent > img {
-	min-height : 33vh;
-	min-width : 33vh;
-	max-height : 33vh;
-	max-width : 33vh;
+	min-height : 20vh;
+	min-width : 20vh;
+	max-height : 20vh;
+	max-width : 20vh;
 }
 .imagePreview:hover .previewContent {
 	display : block;

@@ -622,7 +622,7 @@ class Main extends Model {
 						vals.push(valueHtml(c, Reflect.field(v, c.name), ps, v));
 					}
 				var v = vals.length == 1 ? vals[0] : vals.join(", ");
-				if( size > 200 ) {
+				if( size > 50 ) {
 					out.push("...");
 					break;
 				}
@@ -679,8 +679,8 @@ class Main extends Model {
 			var val = StringTools.htmlEscape(v);
 			var is_valid_image :Bool= (StringTools.endsWith(url.toLowerCase(), ".png") || StringTools.endsWith(url.toLowerCase(), ".jpg") || StringTools.endsWith(url.toLowerCase(), ".jpeg")) && quickExists(path);
 			var html = v == "" ? '<span class="error">#MISSING</span>' : 
-				is_valid_image ? '<img src="$url" width="50" height="50"/>' :
-				//'<img src="$url" width="50" height="50" onmouseover="_.onFileOver(\'$url\')" onmouseleave="_.onFileLeave(\'$url\')"/>';
+				//is_valid_image ? '<img src="$url" width="50" height="50"/>' :
+				is_valid_image ? '<img src="$url" width="50" height="50" onmouseover="_.onFileOver(\'$url\')" onmouseleave="_.onFileLeave(\'$url\')"/>' :
 				'<span title="$val">$val</span>';
 			
 			if( v != "" && !quickExists(path) )
@@ -715,6 +715,8 @@ class Main extends Model {
 	}
 
 	function popupLine( sheet : Sheet, index : Int ) {
+		var is_in_monster_types_sheet :Bool= sheet.name == "monster_types";
+
 		var n = new Menu();
 		var nup = new MenuItem( { label : "Move Up" } );
 		var ndown = new MenuItem( { label : "Move Down" } );
@@ -722,8 +724,18 @@ class Main extends Model {
 		var ndel = new MenuItem( { label : "Delete" } );
 		var nsep = new MenuItem( { label : "Separator", type : MenuItemType.checkbox } );
 		var nref = new MenuItem( { label : "Show References" } );
-		for( m in [nup, ndown, nins, ndel, nsep, nref] )
-			n.append(m);
+		if (is_in_monster_types_sheet) {
+			var newMonster = new MenuItem( { label : "Create New Monster" } );
+			for( m in [nup, ndown, nins, newMonster, ndel, nsep, nref] )
+				n.append(m);
+			newMonster.click = function() {
+				newMonsterType(sheet, index);
+			};
+		}
+		else {
+			for( m in [nup, ndown, nins, ndel, nsep, nref] )
+				n.append(m);
+		}
 
 		var sepIndex = -1;
 		for (i in 0...sheet.separators.length) {
@@ -2752,6 +2764,102 @@ class Main extends Model {
 		untyped if( js.node.Fs.accessSync == null ) js.node.Fs.accessSync = function(path) if( !(js.node.Fs : Dynamic).existsSync(path) ) throw path + " does not exists";
 		inst = new Main();
 		Reflect.setField(js.Browser.window, "_", inst);
+	}
+
+	function createMonster() {
+		var v : Dynamic<String> = { };
+		var cols = J("#newmonster_form input, #newmonster_form select").not("[type=submit]");
+		for( i in cols.elements() )
+			Reflect.setField(v, i.attr("name"), i.val());
+
+		var new_monster_id :String= v.id;
+		var new_monster_name :String= v.name;
+		var new_beast_part_id :String= v.beast_part_id;
+		var new_beast_part_name :String= v.beast_part_name;
+
+		var monster_sheet :Sheet= null;
+		var beast_parts_sheet :Sheet= null;
+		var effects_sheet :Sheet= null;
+		for( i in 0...base.sheets.length ) {
+			var s = base.sheets[i];
+			switch( s.name ) {
+				case "monster_types":
+					monster_sheet = s;
+				case "beast_parts":
+					beast_parts_sheet = s;
+				case "effects":
+					effects_sheet = s;
+				default:
+			}
+		}
+		
+		var new_monster_line :Dynamic= monster_sheet.newLine(monster_sheet.lines.length-1);
+		new_monster_line.id = new_monster_id;
+		monster_sheet.sync();
+		new_monster_line.name = new_monster_name;
+		var c : Column = {
+			type : TString,
+			typeStr : null,
+			name : "name",
+		};
+		monster_sheet.updateValue(c, monster_sheet.lines.length-1, "");
+		// Reflect.setField(new_monster_line, "id", new_monster_name);
+		
+		var new_beast_parts_line :Dynamic= beast_parts_sheet.newLine(beast_parts_sheet.lines.length-1);
+		new_beast_parts_line.id = new_beast_part_id;
+		beast_parts_sheet.sync();
+		new_beast_parts_line.name = new_beast_part_name;
+		beast_parts_sheet.updateValue(c, beast_parts_sheet.lines.length-1, "");
+		
+		var new_effect_line :Dynamic= effects_sheet.newLine(effects_sheet.lines.length-1);
+		new_effect_line.id = new_beast_part_id;
+		effects_sheet.sync();
+
+		function create_sheet_from_list(the_sheet:Sheet, column_name:String, column_values:Dynamic) {
+			var the_column :cdb.Data.Column= null;
+			var cindex :Int= 0;
+			for( cindex in 0...the_sheet.columns.length ) {
+				if (the_sheet.columns[cindex].name == column_name) {
+					the_column = the_sheet.columns[cindex];
+					break;
+				}
+			}
+			var key_name :String= the_sheet.getPath() + "@" + the_column.name + ":" + Std.string(the_sheet.lines.length-1);
+			var psheet = the_sheet.getSub(the_column);
+			psheet = new cdb.Sheet(base,{
+				columns : psheet.columns, // SHARE
+				props : psheet.props, // SHARE
+				name : psheet.name, // same
+				lines : column_values, // ref
+				separators : [], // none
+			},key_name, { sheet : the_sheet, column : cindex, line : the_sheet.lines.length-1 });
+			return psheet;
+		}
+		
+		{
+			// Set beast part ref on monster.
+			var psheet :Sheet= create_sheet_from_list(monster_sheet, "beast_part_rewards", new_monster_line.beast_part_rewards);
+			var new_line :Dynamic= psheet.newLine();
+			new_line.beast_part = new_beast_part_id;
+		}
+
+		{
+			// Set effect ref on beast part.
+			var psheet :Sheet= create_sheet_from_list(monster_sheet, "effects", new_beast_parts_line.effects);
+			var new_line :Dynamic= psheet.newLine();
+			new_line.effect = new_beast_part_id;
+		}
+
+		J("#newmonster").hide();
+		for( c in cols.elements() )
+			c.val("");
+		refresh();
+		// save();
+	}
+
+	function newMonsterType( sheet : Sheet, ?index : Int ) {
+		var form = J("#newmonster form");
+		J("#newmonster").show();
 	}
 
 }
